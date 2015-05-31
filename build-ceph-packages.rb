@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 #
+<<<<<<< HEAD
 # This script is designed to create packages that will be
 # used to install Ceph. The script determines which package
 # to create depending on the user's environment (RPM package for
@@ -136,3 +137,154 @@ puts "Pulling #{in_branch} branch from #{in_repo} repo"
 puts `git clone --recursive --depth=1 --branch #{in_branch} #{in_repo}`
 
 exit 0
+=======
+# (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
+# All rights reserved
+
+require 'optparse'
+
+VERSION = '0.0.1'
+
+EXIT_SUCCESS = 0
+
+ERROR_GIT = 1
+ERROR_DEPENDENCY = 2
+ERROR_USAGE = 4
+
+GIT_LOG = 'git_log.txt'
+DEPENDENCY_LOG = 'dependency_log.txt'
+
+class CliOptions
+  attr_reader :repo, :branch, :build_rpms,
+                :build_debs, :package_manager
+
+  def initialize
+    @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'
+    @branch = 'master'
+    @no_debs = false
+    @out_dir = ''
+    @package_manager = :yum
+    self.process_cli_arguments
+    self.create_output_directory
+    self.determine_package_manager
+    self.determine_packages_to_build
+  end
+
+  def create_output_directory
+    unless @out_dir.empty? || File.directory?(@out_dir)
+      Dir.mkdir(@out_dir)
+    end
+  end
+
+  def usage
+    puts <<EOS
+    usage: build-ceph-packages [-h|--help] [--version]
+                         [-b|--branch=<branch-name>] [-r|--repo=<repo-url>]
+                         [--no-debs] [-o|--output=<path>]
+
+    This script builds the Ceph RPM and .deb packages from the specified branch
+    of the specified git repository. On a Debian system, only the .deb packages
+    will be generated. On a RHEL/CentOS system, both the RPM and .deb packages
+    will be built.
+
+    -b <branch-name>, --branch=<branch-name>
+        Use the specified branch of the respository. Default is to use master.
+
+    --no-debs
+        Only generate the RPM packages.
+
+    -o <path>, --output <path>
+        Write the generated packages to the specified path.
+
+    -r <repo-url>, --repo=<repo-url>
+        Use the specified repository. The URL must be the one that git would
+        recognize. If not specified,
+        https://github.com/HP-Scale-out-Storage/ceph will be used.
+
+    -h, --help      display this help and exit
+
+        --version   output version information and exit
+EOS
+  end
+
+  def process_cli_arguments
+    OptionParser.new do |option|
+      option.banner = usage
+
+      option.on('-h', '--help') do
+        exit EXIT_SUCCESS
+      end
+
+      option.on('--version') do
+        puts "#{$PROGRAM_NAME}: #{VERSION}"
+        exit EXIT_SUCCESS
+      end
+
+      option.on('--branch [BRANCH]', '-b') do |branch|
+        @branch = branch
+      end
+
+      option.on('--repo [REPO]', '-r') do |repo|
+        @repo = repo
+      end
+
+      option.on('--no-debs') do
+        @no_debs = true
+      end
+
+      option.on('--output [OUTPUT]', '-o') do |output|
+        @out_dir = output
+      end
+    end.parse!
+  end
+
+  def determine_package_manager
+    if File.exist?('/etc/yum')
+      @package_manager = :yum
+    else
+      @package_manager = :apt
+    end
+  end
+
+  def determine_packages_to_build
+    if `lsb_release -is`.match(/RHEL|CentOS/)
+      @build_rpms = true
+      @build_debs = !@no_debs
+    else
+      @build_rpms = false
+      @build_debs = true
+    end
+  end
+end
+
+def pull_repo(branch, repo)
+  puts "Pulling #{branch} branch from the #{repo} repo"
+  `git clone \
+    --recursive \
+    --depth=1 \
+    --branch #{branch} \
+    #{repo} \
+    &> #{GIT_LOG}`
+  unless $?.success?
+    puts "Error pulling from git. Check #{GIT_LOG} for more details."
+    exit ERROR_GIT
+  end
+end
+
+def install_dependencies(package_manager)
+  if package_manager == :yum
+    `sudo yum -y install \`cat ceph/deps.rpm.txt\` &> #{DEPENDENCY_LOG}`
+  else
+    `sudo apt-get -y install \`cat ceph/deps.deb.txt\ &> #{DEPENDENCY_LOG}`
+  end
+
+  unless $?.success?
+    puts "Error installing dependencies. Check #{DEPENDENCY_LOG} for details."
+    exit ERROR_DEPENDENCY
+  end
+end
+
+cli = CliOptions.new
+pull_repo(cli.branch, cli.repo)
+install_dependencies(cli.package_manager)
+>>>>>>> 1536550ac3ae3ad9460a3a19a3cdda8270c9a4d4

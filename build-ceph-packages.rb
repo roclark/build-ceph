@@ -49,7 +49,9 @@ def usage
       Use the specified repository. The URL must be the one that git would
       recognize. If not specified,
       https://github.com/HP-Scale-out-Storage/ceph will be used.
+
   -h, --help      display this help and exit
+
       --version   output version information and exit
 EOS
 end

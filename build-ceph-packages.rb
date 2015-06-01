@@ -5,13 +5,15 @@
 
 require 'getoptlong'
 
-VERSION     =   '0.0.1'   # Current version of the script - use with --version
-repo        =   'https://github.com/HP-Scale-out-Storage/ceph.git' # Default
+VERSION = '0.0.1'   # Current version of the script - use with --version
+ERROR_UNSUPPORTED_OS = 2
+ERROR_USAGE = 4
+repo = 'https://github.com/HP-Scale-out-Storage/ceph.git' # Default
 # repository to pull from
-branch      =   'master'  # Default branch to pull from
-no_debs     =   false   # Set to true when user gives "--no-debs" parameter
-out_dir     =   '' # Default output directory
-OS_SUPPORT  =   [ # List of currently supported OS environments.
+branch = 'master'  # Default branch to pull from
+no_debs = false   # Set to true when user gives "--no-debs" parameter
+out_dir = '' # Default output directory
+OS_SUPPORT = [ # List of currently supported OS environments.
   'CentOS 7.1', 
   'Debian 8.0',
 ]
@@ -56,65 +58,52 @@ def usage
 EOS
 end
 
-begin
-  opts.each do |opt, arg|
-    case opt
-    # Display the script usage and exit with status 0
-    when '--help'
-      usage
-      exit 0
+def process_cli_arguments
+  begin
+    opts.each do |option, argument|
+      case option
+      when '--help'
+        usage
+        exit 0
 
-    # Display the current version number of the script and exit with status 0
-    when '--version'
-      puts "Current version of build-ceph-packages: #{VERSION}"
-      exit 0
+      when '--version'
+        puts "#{$PROGRAM_NAME}"
+        exit 0
 
-    # Get the branch input from user and store it in the 'in_branch' variable
-    when '--branch'
-      branch = arg
+      when '--branch'
+        branch = argument
 
-    # Get the repo input from the user and store it in the 'in_repo' variable
-    when '--repo'
-      repo = arg
+      when '--repo'
+        repo = argument
 
-    # User specified to only generate the RPM packages
-    when '--no-debs'
-      no_debs = true
+      when '--no-debs'
+        no_debs = true
 
-    # Set the output directory as specified by the user
-    # If the directory already exists, set the output to that directory
-    # Otherwise, create the directory
-    when '--output'
-      out_dir = arg
-
-      Dir.mkdir(arg) if File.directory?(arg) == false
+      when '--output'
+        out_dir = argument
+        Dir.mkdir(argument) unless File.directory?(argument)
+      end
     end
-  end
 
-# Catch exceptions if any - print the usage and exit the script with status 1
-rescue
-  usage
-  exit 4
+  rescue
+    usage
+    exit ERROR_USAGE
+  end
 end
 
-# If the output directory does not exist yet, create it
-if out_param == false && File.directory?(out_dir) == false
+if out_dir != '' && File.directory?(out_dir) == false
   Dir.mkdir(out_dir)
   puts "Creating new directory at #{out_dir}"
 end
 
-# Detect the environment the script is being executed on
-flavor        = `lsb_release -s -i`
-flavor        = flavor.tr("\n", '')
-release       = `lsb_release -s -r`
+flavor = `lsb_release -s -i`
+flavor = flavor.tr("\n", '')
+release = `lsb_release -s -r`
 release_short = release.split('.')
 release_short = release_short[0] + '.' + release_short[1]
 puts "Detected running in environment: #{flavor}"
 puts "Version number: #{release}"
 
-# Verify the utility is running in an approved environment
-# If not, notify the user and exit the script
-# See array "os_support" for list of supported environments
 full_ver = "#{flavor} #{release_short}"
 full_ver = full_ver.tr("\n", '')
 
@@ -124,14 +113,12 @@ else
   puts "#{full_ver} is not supported by this script"
   puts "build-ceph-packages requires #{OS_SUPPORT}"
   puts 'Exiting script...'
-  exit 2
+  exit ERROR_UNSUPPORTED_OS
 end
 
-# Pull the specified branch from the specified repo
 puts "Pulling #{branch} branch from the #{repo} repo"
 puts `git clone --recursive --depth=1 --branch #{branch} #{repo}`
 
-# Install the dependencies based on the environment
 puts 'Installing dependencies'
 if flavor == 'CentOS'
   puts %x(sudo yum install \`cat ceph/deps.rpm.txt\`)

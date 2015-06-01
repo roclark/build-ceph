@@ -6,16 +6,17 @@
 require 'getoptlong'
 
 VERSION     =   '0.0.1'   # Current version of the script - use with --version
-in_repo     =   'https://github.com/HP-Scale-out-Storage/ceph.git' # Default
+repo        =   'https://github.com/HP-Scale-out-Storage/ceph.git' # Default
 # repository to pull from
-in_branch   =   'master'  # Default branch to pull from
-nodebs      =   false   # Set to true when user gives "--no-debs" parameter
-out_dir     =   'outputs' # Default output directory
-out_param   =   false   # Set to true when user gives a valid output parameter
-OS_SUPPORT  =   ['CentOS 7.1', 'Debian 8.0']  # List of supported operating
-# systems. Add/edit values if future operating systems are to be supported
+branch      =   'master'  # Default branch to pull from
+no_debs     =   false   # Set to true when user gives "--no-debs" parameter
+out_dir     =   '' # Default output directory
+OS_SUPPORT  =   [ # List of currently supported OS environments.
+  'CentOS 7.1', 
+  'Debian 8.0',
+]
 
-opts        =   GetoptLong.new(
+opts = GetoptLong.new(
   ['--help',     '-h',  GetoptLong::NO_ARGUMENT],
   ['--version',         GetoptLong::NO_ARGUMENT],
   ['--branch',   '-b',  GetoptLong::REQUIRED_ARGUMENT],
@@ -68,22 +69,21 @@ begin
 
     # Get the branch input from user and store it in the 'in_branch' variable
     when '--branch'
-      in_branch = arg
+      branch = arg
 
     # Get the repo input from the user and store it in the 'in_repo' variable
     when '--repo'
-      in_repo = arg
+      repo = arg
 
     # User specified to only generate the RPM packages
     when '--no-debs'
-      nodebs = true
+      no_debs = true
 
     # Set the output directory as specified by the user
     # If the directory already exists, set the output to that directory
     # Otherwise, create the directory
     when '--output'
-      out_dir   = arg
-      out_param = true
+      out_dir = arg
 
       Dir.mkdir(arg) if File.directory?(arg) == false
     end
@@ -126,8 +126,8 @@ else
 end
 
 # Pull the specified branch from the specified repo
-puts "Pulling #{in_branch} branch from the #{in_repo} repo"
-puts `git clone --recursive --depth=1 --branch #{in_branch} #{in_repo}`
+puts "Pulling #{branch} branch from the #{repo} repo"
+puts `git clone --recursive --depth=1 --branch #{branch} #{repo}`
 
 # Install the dependencies based on the environment
 puts 'Installing dependencies'

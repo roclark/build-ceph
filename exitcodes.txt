@@ -1,7 +1,0 @@
-The following is a list of the exit code meanings from the build-ceph-packages script.
-These codes were last updated on June 1, 2015 by Robert Clark.
-
-0:	Successful exit with no errors
-2:	Unsupported Operating System - build-ceph-packages currently supports CentOS 7.1 and Debian 8.0
-4:	Error parsing command line arguments - use -h or --help for troubleshooting parameters
-

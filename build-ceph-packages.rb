@@ -8,6 +8,7 @@ require 'getoptlong'
 VERSION = '0.0.1'   # Current version of the script - use with --version
 EXIT_SUCCESS = 0
 ERROR_USAGE = 4
+GIT_LOG = 'git_log.txt'
 
 class Ceph
   def initialize
@@ -19,7 +20,8 @@ class Ceph
     @package_manager = :yum
   end
 
-  attr_accessor :repo, :branch, :no_debs, :out_dir, :build_rpms, :build_debs, :package_manager
+  attr_accessor :repo, :branch, :no_debs, :out_dir, :build_rpms,
+                :build_debs, :package_manager
 end
 
 def usage
@@ -114,8 +116,10 @@ def check_environment(ceph)
 end
 
 def pull_repo(ceph)
+  `touch #{GIT_LOG}` unless File.exist?(GIT_LOG)
+
   puts "Pulling #{ceph.branch} branch from the #{ceph.repo} repo"
-  `git clone --recursive --depth=1 --branch #{ceph.branch} #{ceph.repo}`
+  `git clone --recursive --depth=1 --branch #{ceph.branch} #{ceph.repo} > #{GIT_LOG} 2>&1`
 
   if ceph.package_manager == :yum
     puts %x(sudo yum install \`cat ceph/deps.rpm.txt\`)

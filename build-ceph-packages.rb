@@ -3,7 +3,6 @@
 # (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
 # All rights reserved
 
-require 'getoptlong'
 require 'optparse'
 
 VERSION = '0.0.1'   # Current version of the script - use with --version
@@ -114,8 +113,9 @@ end
 
 def pull_repo(cli)
   puts "Pulling #{cli.branch} branch from the #{cli.repo} repo"
-  `git clone --recursive --depth=1 --branch #{cli.branch} #{cli.repo} > #{GIT_LOG} 2>&1`
-  unless $? == 0
+  `#{"git clone --recursive --depth=1 --branch #{cli.branch} #{cli.repo}" +
+    "&> #{GIT_LOG}"}`
+  unless $?.success?
     puts "Error pulling from git. Check #{GIT_LOG} for more details"
     exit ERROR_GIT
   end
@@ -123,17 +123,14 @@ end
 
 def install_dependencies(cli)
   if cli.package_manager == :yum
-    puts %x(sudo yum -y install \`cat ceph/deps.rpm.txt\` > #{DEPENDENCY_LOG} 2>&1)
-    unless $? == 0
-      puts "Error installing dependencies. Check #{DEPENDENCY_LOG} for more details."
-      exit ERROR_DEPENDENCY
-    end
-  elsif cli.package_manager == :apt
-    puts %x(sudo apt-get -y install \`cat ceph/deps.deb.txt\` > #{DEPENDENCY_LOG} 2>&1)
-    unless $? == 0
-      puts "Error installing dependencies. Check #{DEPENDENCY_LOG} for more details."
-      exit ERROR_DEPENDENCY
-    end
+    `sudo yum -y install \`cat ceph/deps.rpm.txt\` &> #{DEPENDENCY_LOG}`
+  else
+    `sudo apt-get -y install \`cat ceph/deps.deb.txt\ &> #{DEPENDENCY_LOG}`
+  end
+
+  unless $?.success?
+    puts "Error installing dependencies. Check #{DEPENDENCY_LOG} for details."
+    exit ERROR_DEPENDENCY
   end
 end
 

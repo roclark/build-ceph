@@ -6,26 +6,20 @@
 require 'getoptlong'
 
 VERSION = '0.0.1'   # Current version of the script - use with --version
-ERROR_UNSUPPORTED_OS = 2
+EXIT_SUCCESS = 0
 ERROR_USAGE = 4
-repo = 'https://github.com/HP-Scale-out-Storage/ceph.git' # Default
-# repository to pull from
-branch = 'master'  # Default branch to pull from
-no_debs = false   # Set to true when user gives "--no-debs" parameter
-out_dir = '' # Default output directory
-OS_SUPPORT = [ # List of currently supported OS environments.
-  'CentOS 7.1', 
-  'Debian 8.0',
-]
 
-opts = GetoptLong.new(
-  ['--help',     '-h',  GetoptLong::NO_ARGUMENT],
-  ['--version',         GetoptLong::NO_ARGUMENT],
-  ['--branch',   '-b',  GetoptLong::REQUIRED_ARGUMENT],
-  ['--repo',     '-r',  GetoptLong::REQUIRED_ARGUMENT],
-  ['--no-debs',         GetoptLong::NO_ARGUMENT],
-  ['--output',   '-o',  GetoptLong::REQUIRED_ARGUMENT]
-)
+class Ceph
+  def initialize
+    @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'  # Default
+    # repository to pull from
+    @branch = 'master'  # Default branch to pull from
+    @no_debs = false  # Set to true when user gives "--no-debs" parameter
+    @out_dir = '' # Default output directory
+  end
+
+  attr_accessor :repo, :branch, :no_debs, :out_dir, :build_rpms, :build_debs
+end
 
 def usage
   puts <<EOS
@@ -58,70 +52,77 @@ def usage
 EOS
 end
 
-def process_cli_arguments
+def process_cli_arguments(ceph)
+  opts = GetoptLong.new(
+    ['--help',     '-h',  GetoptLong::NO_ARGUMENT],
+    ['--version',         GetoptLong::NO_ARGUMENT],
+    ['--branch',   '-b',  GetoptLong::REQUIRED_ARGUMENT],
+    ['--repo',     '-r',  GetoptLong::REQUIRED_ARGUMENT],
+    ['--no-debs',         GetoptLong::NO_ARGUMENT],
+    ['--output',   '-o',  GetoptLong::REQUIRED_ARGUMENT]
+  )
+
   begin
-    opts.each do |option, argument|
-      case option
+    opts.each do |opt, arg|
+      case opt
       when '--help'
         usage
-        exit 0
+        exit EXIT_SUCCESS
 
       when '--version'
-        puts "#{$PROGRAM_NAME}"
-        exit 0
+        puts "#{$PROGRAM_NAME}: #{VERSION}"
+        exit EXIT_SUCCESS
 
       when '--branch'
-        branch = argument
+        ceph.branch = arg
 
       when '--repo'
-        repo = argument
+        ceph.repo = arg
 
       when '--no-debs'
-        no_debs = true
+        ceph.no_debs = true
 
       when '--output'
-        out_dir = argument
-        Dir.mkdir(argument) unless File.directory?(argument)
+        ceph.out_dir = arg
+        Dir.mkdir(arg) unless File.directory?(arg)
+
+      else
+        usage
+        exit ERROR_USAGE
       end
     end
-
-  rescue
-    usage
-    exit ERROR_USAGE
   end
 end
 
-if out_dir != '' && File.directory?(out_dir) == false
-  Dir.mkdir(out_dir)
-  puts "Creating new directory at #{out_dir}"
+def create_output_directory(ceph)
+  if ceph.out_dir != '' && File.directory?(ceph.out_dir) == false
+    Dir.mkdir(ceph.out_dir)
+  end
 end
 
-flavor = `lsb_release -s -i`
-flavor = flavor.tr("\n", '')
-release = `lsb_release -s -r`
-release_short = release.split('.')
-release_short = release_short[0] + '.' + release_short[1]
-puts "Detected running in environment: #{flavor}"
-puts "Version number: #{release}"
-
-full_ver = "#{flavor} #{release_short}"
-full_ver = full_ver.tr("\n", '')
-
-if OS_SUPPORT.include? full_ver
-  puts "#{full_ver} is supported"
-else
-  puts "#{full_ver} is not supported by this script"
-  puts "build-ceph-packages requires #{OS_SUPPORT}"
-  puts 'Exiting script...'
-  exit ERROR_UNSUPPORTED_OS
+def check_environment(ceph)
+  if `lsb_release -is`.match(/RHEL|CentOS/)
+    ceph.build_rpms = true
+    ceph.build_debs = !ceph.no_debs
+  else
+    ceph.build_rpms = false
+    ceph.build_debs = true
+  end
 end
 
-puts "Pulling #{branch} branch from the #{repo} repo"
-puts `git clone --recursive --depth=1 --branch #{branch} #{repo}`
+def pull_repo(ceph)
+  puts "Pulling #{ceph.branch} branch from the #{ceph.repo} repo"
+  puts `git clone --recursive --depth=1 --branch #{ceph.branch} #{ceph.repo}`
 
-puts 'Installing dependencies'
-if flavor == 'CentOS'
-  puts %x(sudo yum install \`cat ceph/deps.rpm.txt\`)
-elsif flavor == 'Debian'
-  puts %x(sudo apt-get install \`cat ceph/deps.deb.txt\`)
+  if flavor == 'CentOS'
+    puts %x(sudo yum install \`cat ceph/deps.rpm.txt\`)
+  elsif flavor == 'Debian'
+    puts %x(sudo apt-get install \`cat ceph/deps.deb.txt\`)
+  end
 end
+
+ceph = Ceph.new
+process_cli_arguments(ceph)
+create_output_directory(ceph)
+check_environment(ceph)
+pull_repo(ceph)

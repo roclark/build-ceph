@@ -16,9 +16,10 @@ class Ceph
     @branch = 'master'  # Default branch to pull from
     @no_debs = false  # Set to true when user gives "--no-debs" parameter
     @out_dir = '' # Default output directory
+    @package_manager = :yum
   end
 
-  attr_accessor :repo, :branch, :no_debs, :out_dir, :build_rpms, :build_debs
+  attr_accessor :repo, :branch, :no_debs, :out_dir, :build_rpms, :build_debs, :package_manager
 end
 
 def usage
@@ -104,19 +105,21 @@ def check_environment(ceph)
   if `lsb_release -is`.match(/RHEL|CentOS/)
     ceph.build_rpms = true
     ceph.build_debs = !ceph.no_debs
+    ceph.package_manager = :yum
   else
     ceph.build_rpms = false
     ceph.build_debs = true
+    ceph.package_manager = :apt
   end
 end
 
 def pull_repo(ceph)
   puts "Pulling #{ceph.branch} branch from the #{ceph.repo} repo"
-  puts `git clone --recursive --depth=1 --branch #{ceph.branch} #{ceph.repo}`
+  `git clone --recursive --depth=1 --branch #{ceph.branch} #{ceph.repo}`
 
-  if flavor == 'CentOS'
+  if ceph.package_manager == :yum
     puts %x(sudo yum install \`cat ceph/deps.rpm.txt\`)
-  elsif flavor == 'Debian'
+  elsif ceph.package_manager == :apt
     puts %x(sudo apt-get install \`cat ceph/deps.deb.txt\`)
   end
 end

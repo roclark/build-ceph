@@ -35,7 +35,7 @@ def usage
   -b <branch-name>, --branch=<branch-name>
       Use the specified branch of the respository. Default is to use master.
 
-  --no-debs"
+  --no-debs
       Only generate the RPM packages.
 
   -o <path>, --output <path>

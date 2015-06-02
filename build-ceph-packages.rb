@@ -7,6 +7,8 @@ require 'getoptlong'
 
 VERSION = '0.0.1'   # Current version of the script - use with --version
 EXIT_SUCCESS = 0
+ERROR_GIT = 1
+ERROR_DEPENDENCY = 2
 ERROR_USAGE = 4
 GIT_LOG = 'git_log.txt'
 DEPENDENCY_LOG = 'dependency_log.txt'
@@ -122,11 +124,20 @@ def pull_repo(ceph)
 
   puts "Pulling #{ceph.branch} branch from the #{ceph.repo} repo"
   `git clone --recursive --depth=1 --branch #{ceph.branch} #{ceph.repo} > #{GIT_LOG} 2>&1`
+  unless $? == 0
+    exit ERROR_GIT
+  end
 
   if ceph.package_manager == :yum
-    puts %x(sudo yum install \`cat ceph/deps.rpm.txt\` > #{DEPENDENCY_LOG} 2>&1)
+    puts %x(sudo yum -y install \`cat ceph/deps.rpm.txt\` > #{DEPENDENCY_LOG} 2>&1)
+    unless $? == 0
+      exit ERROR_DEPENDENCY
+    end
   elsif ceph.package_manager == :apt
-    puts %x(sudo apt-get install \`cat ceph/deps.deb.txt\` > #{DEPENDENCY_LOG} 2>&1)
+    puts %x(sudo apt-get -y install \`cat ceph/deps.deb.txt\` > #{DEPENDENCY_LOG} 2>&1)
+    unless $? == 0
+      exit ERROR_DEPENDENCY
+    end
   end
 end
 

@@ -95,8 +95,12 @@ EOS
     end.parse!
   end
 
-  def select_package_manager
-    @package_manager = :apt unless File.exist?('/etc/yum')
+  def determine_package_manager
+    if File.exist?('/etc/yum')
+      @package_manager = :yum
+    else
+      @package_manager = :apt
+    end
   end
 
   def packages_to_build
@@ -136,7 +140,7 @@ end
 cli = CLI.new
 cli.process_cli_arguments
 cli.create_output_directory
-cli.select_package_manager
+cli.determine_package_manager
 cli.packages_to_build
 pull_repo(cli)
 install_dependencies(cli)

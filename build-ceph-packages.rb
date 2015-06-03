@@ -67,8 +67,9 @@ EOS
 
   def process_cli_arguments
     OptionParser.new do |option|
+      option.banner = usage
+
       option.on('-h', '--help') do
-        usage
         exit EXIT_SUCCESS
       end
 
@@ -116,10 +117,14 @@ end
 
 def pull_repo(cli)
   puts "Pulling #{cli.branch} branch from the #{cli.repo} repo"
-  `#{"git clone --recursive --depth=1 --branch #{cli.branch} #{cli.repo}" +
-    "&> #{GIT_LOG}"}`
+  `git clone 
+    --recursive 
+    --depth=1 
+    --branch #{cli.branch} 
+    #{cli.repo} 
+    &> #{GIT_LOG}`
   unless $?.success?
-    puts "Error pulling from git. Check #{GIT_LOG} for more details"
+    puts "Error pulling from git. Check #{GIT_LOG} for more details."
     exit ERROR_GIT
   end
 end

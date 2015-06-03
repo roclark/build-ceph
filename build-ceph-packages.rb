@@ -5,7 +5,7 @@
 
 require 'optparse'
 
-VERSION = '0.0.1'   # Current version of the script - use with --version
+VERSION = '0.0.1'
 
 EXIT_SUCCESS = 0
 
@@ -17,12 +17,14 @@ GIT_LOG = 'git_log.txt'
 DEPENDENCY_LOG = 'dependency_log.txt'
 
 class CLI
+  attr_accessor :repo, :branch, :no_debs, :out_dir, :build_rpms,
+                :build_debs, :package_manager
+
   def initialize
-    @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'  # Default
-    # repository to pull from
-    @branch = 'master'  # Default branch to pull from
-    @no_debs = false  # Set to true when user gives "--no-debs" parameter
-    @out_dir = '' # Default output directory
+    @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'
+    @branch = 'master'
+    @no_debs = false
+    @out_dir = ''
     @package_manager = :yum
   end
 
@@ -31,9 +33,6 @@ class CLI
       Dir.mkdir(@out_dir)
     end
   end
-
-  attr_accessor :repo, :branch, :no_debs, :out_dir, :build_rpms,
-                :build_debs, :package_manager
 
   def usage
     puts <<EOS
@@ -78,20 +77,20 @@ EOS
         exit EXIT_SUCCESS
       end
 
-      option.on('--branch [BRANCH]', '-b') do |b|
-        @branch = b
+      option.on('--branch [BRANCH]', '-b') do |branch|
+        @branch = branch
       end
 
-      option.on('--repo [REPO]', '-r') do |r|
-        @repo = r
+      option.on('--repo [REPO]', '-r') do |repo|
+        @repo = repo
       end
 
       option.on('--no-debs') do
         @no_debs = true
       end
 
-      option.on('--output [OUTPUT]', '-o') do |o|
-        @out_dir = o
+      option.on('--output [OUTPUT]', '-o') do |output|
+        @out_dir = output
       end
     end.parse!
   end

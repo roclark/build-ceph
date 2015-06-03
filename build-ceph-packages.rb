@@ -16,7 +16,7 @@ ERROR_USAGE = 4
 GIT_LOG = 'git_log.txt'
 DEPENDENCY_LOG = 'dependency_log.txt'
 
-class CLI
+class CliOptions
   attr_reader :repo, :branch, :build_rpms,
                 :build_debs, :package_manager
 
@@ -26,6 +26,10 @@ class CLI
     @no_debs = false
     @out_dir = ''
     @package_manager = :yum
+    self.process_cli_arguments
+    self.create_output_directory
+    self.determine_package_manager
+    self.determine_packages_to_build
   end
 
   def create_output_directory
@@ -104,7 +108,7 @@ EOS
     end
   end
 
-  def packages_to_build
+  def determine_packages_to_build
     if `lsb_release -is`.match(/RHEL|CentOS/)
       @build_rpms = true
       @build_debs = !@no_debs
@@ -142,10 +146,6 @@ def install_dependencies(package_manager)
   end
 end
 
-cli = CLI.new
-cli.process_cli_arguments
-cli.create_output_directory
-cli.determine_package_manager
-cli.packages_to_build
+cli = CliOptions.new
 pull_repo(cli.branch, cli.repo)
 install_dependencies(cli.package_manager)

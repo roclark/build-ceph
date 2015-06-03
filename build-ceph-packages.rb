@@ -115,13 +115,13 @@ EOS
   end
 end
 
-def pull_repo(cli)
-  puts "Pulling #{cli.branch} branch from the #{cli.repo} repo"
-  `git clone 
-    --recursive 
-    --depth=1 
-    --branch #{cli.branch} 
-    #{cli.repo} 
+def pull_repo(branch, repo)
+  puts "Pulling #{branch} branch from the #{repo} repo"
+  `git clone \
+    --recursive \
+    --depth=1 \
+    --branch #{branch} \
+    #{repo} \
     &> #{GIT_LOG}`
   unless $?.success?
     puts "Error pulling from git. Check #{GIT_LOG} for more details."
@@ -129,8 +129,8 @@ def pull_repo(cli)
   end
 end
 
-def install_dependencies(cli)
-  if cli.package_manager == :yum
+def install_dependencies(package_manager)
+  if package_manager == :yum
     `sudo yum -y install \`cat ceph/deps.rpm.txt\` &> #{DEPENDENCY_LOG}`
   else
     `sudo apt-get -y install \`cat ceph/deps.deb.txt\ &> #{DEPENDENCY_LOG}`
@@ -147,5 +147,5 @@ cli.process_cli_arguments
 cli.create_output_directory
 cli.determine_package_manager
 cli.packages_to_build
-pull_repo(cli)
-install_dependencies(cli)
+pull_repo(cli.branch, cli.repo)
+install_dependencies(cli.package_manager)

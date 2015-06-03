@@ -17,7 +17,7 @@ GIT_LOG = 'git_log.txt'
 DEPENDENCY_LOG = 'dependency_log.txt'
 
 class CLI
-  attr_accessor :repo, :branch, :no_debs, :out_dir, :build_rpms,
+  attr_reader :repo, :branch, :build_rpms,
                 :build_debs, :package_manager
 
   def initialize

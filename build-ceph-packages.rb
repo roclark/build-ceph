@@ -4,6 +4,7 @@
 # All rights reserved
 
 require 'optparse'
+require 'tmpdir'
 
 
 VERSION = '0.0.1'
@@ -19,7 +20,7 @@ LOG_FILE = File.basename($PROGRAM_NAME, '.*') + '.log'
 
 class String
   def strip_heredoc
-    indent = scan(/^[\t]*(?=\S)/).min_by(&:size).size || 0
+    indent = scan(/^[ \t]*(?=\S)/).min_by(&:size).size || 0
     gsub(/^[\t]{#{indent}}/,'').chomp
   end
 end
@@ -148,5 +149,7 @@ end
 
 
 cli = CliOptions.new
-pull_repo(cli.branch, cli.repo)
+Dir.mktmpdir do |tmpdir|
+  pull_repo(cli.branch, cli.repo)
+end
 install_dependencies(cli.package_manager)

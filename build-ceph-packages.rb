@@ -131,11 +131,11 @@ def pull_repo(branch, repo, tmpdir)
   end
 end
 
-def install_dependencies(package_manager)
+def install_dependencies(package_manager, tmpdir)
   if package_manager == :yum
-    `sudo yum -y install \`cat ceph/deps.rpm.txt\` &> #{LOG_FILE}`
+    `sudo yum -y install \`cat #{tmpdir}/deps.rpm.txt\` &> #{LOG_FILE}`
   else
-    `sudo apt-get -y install \`cat ceph/deps.deb.txt\ &> #{LOG_FILE}`
+    `sudo apt-get -y install \`cat #{tmpdir}/deps.deb.txt\ &> #{LOG_FILE}`
   end
 
   unless $?.success?
@@ -152,5 +152,5 @@ end
 cli = CliOptions.new
 Dir.mktmpdir do |tmpdir|
   pull_repo(cli.branch, cli.repo, tmpdir)
+  install_dependencies(cli.package_manager, tmpdir)
 end
-install_dependencies(cli.package_manager)

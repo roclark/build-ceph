@@ -62,8 +62,9 @@ EOS
 
   def process_cli_arguments
     OptionParser.new do |option|
+      option.banner = usage      
+
       option.on('-h', '--help') do
-        usage
         puts option
         exit EXIT_SUCCESS
       end

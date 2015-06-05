@@ -117,13 +117,14 @@ EOS
 end
 
 
-def pull_repo(branch, repo)
+def pull_repo(branch, repo, tmpdir)
   puts "Pulling #{branch} branch from the #{repo} repo."
   `git clone \
     --recursive \
     --depth=1 \
     --branch #{branch} \
     #{repo} \
+    #{tmpdir} \
     &> #{LOG_FILE}`
   unless $?.success?
     fatal_error(ERROR_GIT, "Error pulling from git")
@@ -150,6 +151,6 @@ end
 
 cli = CliOptions.new
 Dir.mktmpdir do |tmpdir|
-  pull_repo(cli.branch, cli.repo)
+  pull_repo(cli.branch, cli.repo, tmpdir)
 end
 install_dependencies(cli.package_manager)

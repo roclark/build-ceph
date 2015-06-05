@@ -129,8 +129,7 @@ def pull_repo(branch, repo)
     #{repo} \
     &> #{LOG_FILE}`
   unless $?.success?
-    puts "Error pulling from git. Check #{LOG_FILE} for more details."
-    exit ERROR_GIT
+    fatal_error(ERROR_GIT, "Error pulling from git")
   end
 end
 
@@ -142,9 +141,13 @@ def install_dependencies(package_manager)
   end
 
   unless $?.success?
-    puts "Error installing dependencies. Check #{LOG_FILE} for details."
-    exit ERROR_DEPENDENCY
+    fatal_error(ERROR_DEPENDENCY, "Error installing dependencies")
   end
+end
+
+def fatal_error(exit_code, message)
+  puts "#{message}. Check #{LOG_FILE} for more details."
+  exit exit_code
 end
 
 cli = CliOptions.new

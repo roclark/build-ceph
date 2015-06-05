@@ -13,8 +13,7 @@ ERROR_GIT = 1
 ERROR_DEPENDENCY = 2
 ERROR_USAGE = 4
 
-GIT_LOG = 'git_log.txt'
-DEPENDENCY_LOG = 'dependency_log.txt'
+LOG_FILE = File.basename($PROGRAM_NAME, '.*') + '.log'
 
 class CliOptions
   attr_reader :repo, :branch, :build_rpms,
@@ -126,22 +125,22 @@ def pull_repo(branch, repo)
     --depth=1 \
     --branch #{branch} \
     #{repo} \
-    &> #{GIT_LOG}`
+    &> #{LOG_FILE}`
   unless $?.success?
-    puts "Error pulling from git. Check #{GIT_LOG} for more details."
+    puts "Error pulling from git. Check #{LOG_FILE} for more details."
     exit ERROR_GIT
   end
 end
 
 def install_dependencies(package_manager)
   if package_manager == :yum
-    `sudo yum -y install \`cat ceph/deps.rpm.txt\` &> #{DEPENDENCY_LOG}`
+    `sudo yum -y install \`cat ceph/deps.rpm.txt\` &> #{LOG_FILE}`
   else
-    `sudo apt-get -y install \`cat ceph/deps.deb.txt\ &> #{DEPENDENCY_LOG}`
+    `sudo apt-get -y install \`cat ceph/deps.deb.txt\ &> #{LOG_FILE}`
   end
 
   unless $?.success?
-    puts "Error installing dependencies. Check #{DEPENDENCY_LOG} for details."
+    puts "Error installing dependencies. Check #{LOG_FILE} for details."
     exit ERROR_DEPENDENCY
   end
 end

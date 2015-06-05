@@ -5,6 +5,7 @@
 
 require 'optparse'
 
+
 VERSION = '0.0.1'
 
 EXIT_SUCCESS = 0
@@ -14,6 +15,7 @@ ERROR_DEPENDENCY = 2
 ERROR_USAGE = 4
 
 LOG_FILE = File.basename($PROGRAM_NAME, '.*') + '.log'
+
 
 class CliOptions
   attr_reader :repo, :branch, :build_rpms,
@@ -119,7 +121,7 @@ EOS
 end
 
 def pull_repo(branch, repo)
-  puts "Pulling #{branch} branch from the #{repo} repo"
+  puts "Pulling #{branch} branch from the #{repo} repo."
   `git clone \
     --recursive \
     --depth=1 \

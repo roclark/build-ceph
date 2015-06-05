@@ -25,6 +25,7 @@ class String
   end
 end
 
+
 class CliOptions
   attr_reader :repo, :branch, :build_rpms,
                 :build_debs, :package_manager

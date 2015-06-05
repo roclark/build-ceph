@@ -42,6 +42,8 @@ class CliOptions
     determine_packages_to_build
   end
 
+  private
+
   def create_output_directory
     unless @out_dir.empty? || File.directory?(@out_dir)
       Dir.mkdir(@out_dir)
@@ -58,35 +60,22 @@ class CliOptions
     of the specified git repository. On a Debian system, only the .deb packages
     will be generated. On a RHEL/CentOS system, both the RPM and .deb packages
     will be built.
-EOS
+    EOS
   end
 
   def process_cli_arguments
     OptionParser.new do |option|
-      option.banner = usage      
-
-      option.on('-h', '--help') do
-        puts option
-        exit EXIT_SUCCESS
-      end
-
-      option.on('--version') do
-        puts "#{$PROGRAM_NAME}: #{VERSION}"
-        exit EXIT_SUCCESS
-      end
+      option.banner = usage
 
       option.on('-b', '--branch=<branch-name>', <<-EOS.strip_heredoc) do |branch|
           Use the specified branch of the repository. Default is to use master.
           EOS
-        @branch = branch
+        @branch
       end
 
-      option.on('-r', '--repo=<repo-url>', <<-EOS.strip_heredoc) do |repo|
-          Use the specified repository. The URL must be one that git would
-          recognize. If not specified, 
-          https://github.com/HP-Scale-out-Storage/ceph will be used.
-          EOS
-        @repo = repo
+      option.on('-h', '--help') do
+        puts option
+        exit EXIT_SUCCESS
       end
 
       option.on('--no-debs') do
@@ -95,6 +84,19 @@ EOS
 
       option.on('-o', '--output=<output-file>') do |output|
         @out_dir = output
+      end
+
+      option.on('-r', '--repo=<repo-url>', <<-EOS.strip_heredoc) do |repo|
+          Use the specified repository. The URL must be one that git would
+          recognize. If not specified,
+          https://github.com/HP-Scale-out-Storage/ceph will be used.
+          EOS
+        @repo = repo
+      end
+
+      option.on('--version') do
+        puts "#{$PROGRAM_NAME}: #{VERSION}"
+        exit EXIT_SUCCESS
       end
     end.parse!
   end

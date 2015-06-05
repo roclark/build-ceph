@@ -17,6 +17,13 @@ ERROR_USAGE = 4
 LOG_FILE = File.basename($PROGRAM_NAME, '.*') + '.log'
 
 
+class String
+  def strip_heredoc
+    indent = scan(/^[\t]*(?=\S)/).min_by(&:size).size || 0
+    gsub(/^[\t]{#{indent}}/,'').chomp
+  end
+end
+
 class CliOptions
   attr_reader :repo, :branch, :build_rpms,
                 :build_debs, :package_manager
@@ -40,7 +47,7 @@ class CliOptions
   end
 
   def usage
-    puts <<EOS
+    puts <<-EOS.strip_heredoc
     usage: build-ceph-packages [-h|--help] [--version]
                          [-b|--branch=<branch-name>] [-r|--repo=<repo-url>]
                          [--no-debs] [-o|--output=<path>]
@@ -49,32 +56,14 @@ class CliOptions
     of the specified git repository. On a Debian system, only the .deb packages
     will be generated. On a RHEL/CentOS system, both the RPM and .deb packages
     will be built.
-
-    -b <branch-name>, --branch=<branch-name>
-        Use the specified branch of the respository. Default is to use master.
-
-    --no-debs
-        Only generate the RPM packages.
-
-    -o <path>, --output <path>
-        Write the generated packages to the specified path.
-
-    -r <repo-url>, --repo=<repo-url>
-        Use the specified repository. The URL must be the one that git would
-        recognize. If not specified,
-        https://github.com/HP-Scale-out-Storage/ceph will be used.
-
-    -h, --help      display this help and exit
-
-        --version   output version information and exit
 EOS
   end
 
   def process_cli_arguments
     OptionParser.new do |option|
-      option.banner = usage
-
       option.on('-h', '--help') do
+        usage
+        puts option
         exit EXIT_SUCCESS
       end
 
@@ -83,11 +72,17 @@ EOS
         exit EXIT_SUCCESS
       end
 
-      option.on('--branch [BRANCH]', '-b') do |branch|
+      option.on('-b', '--branch=<branch-name>', <<-EOS.strip_heredoc) do |branch|
+          Use the specified branch of the repository. Default is to use master.
+          EOS
         @branch = branch
       end
 
-      option.on('--repo [REPO]', '-r') do |repo|
+      option.on('-r', '--repo=<repo-url>', <<-EOS.strip_heredoc) do |repo|
+          Use the specified repository. The URL must be one that git would
+          recognize. If not specified, 
+          https://github.com/HP-Scale-out-Storage/ceph will be used.
+          EOS
         @repo = repo
       end
 
@@ -95,7 +90,7 @@ EOS
         @no_debs = true
       end
 
-      option.on('--output [OUTPUT]', '-o') do |output|
+      option.on('-o', '--output=<output-file>') do |output|
         @out_dir = output
       end
     end.parse!
@@ -119,6 +114,7 @@ EOS
     end
   end
 end
+
 
 def pull_repo(branch, repo)
   puts "Pulling #{branch} branch from the #{repo} repo."
@@ -149,6 +145,7 @@ def fatal_error(exit_code, message)
   puts "#{message}. Check #{LOG_FILE} for more details."
   exit exit_code
 end
+
 
 cli = CliOptions.new
 pull_repo(cli.branch, cli.repo)

@@ -13,6 +13,7 @@ EXIT_SUCCESS = 0
 
 ERROR_GIT = 1
 ERROR_DEPENDENCY = 2
+ERROR_CONFIG = 3
 ERROR_USAGE = 4
 
 LOG_FILE = File.basename($PROGRAM_NAME, '.*') + '.log'
@@ -131,7 +132,7 @@ def pull_repo(branch, repo, tmpdir)
     #{tmpdir} \
     &> #{LOG_FILE}`
   unless $?.success?
-    fatal_error(ERROR_GIT, "Error pulling from git")
+    fatal_error(ERROR_GIT, 'Error pulling from git')
   end
 end
 
@@ -143,7 +144,7 @@ def install_dependencies(package_manager, tmpdir)
   end
 
   unless $?.success?
-    fatal_error(ERROR_DEPENDENCY, "Error installing dependencies")
+    fatal_error(ERROR_DEPENDENCY, 'Error installing dependencies')
   end
 end
 
@@ -152,9 +153,24 @@ def fatal_error(exit_code, message)
   exit exit_code
 end
 
+def generate_config(tmpdir)
+  Dir.chdir("#{tmpdir}") do
+    `./autogen.sh &> #{LOG_FILE}`
+    unless $?.success?
+      fatal_error(ERROR_CONFIG, 'Error running ./autogen.sh')
+    end
+
+    `./configure &> #{LOG_FILE}`
+    unless $?.success?
+      fatal_error(ERROR_CONFIG, 'Error running ./configure')
+    end
+  end
+end
+
 
 cli = CliOptions.new
 Dir.mktmpdir do |tmpdir|
   pull_repo(cli.branch, cli.repo, tmpdir)
   install_dependencies(cli.package_manager, tmpdir)
+  generate_config(tmpdir)
 end

@@ -154,16 +154,9 @@ def fatal_error(exit_code, message)
 end
 
 def generate_config(tmpdir)
-  Dir.chdir("#{tmpdir}") do
-    `./autogen.sh &> #{LOG_FILE}`
-    unless $?.success?
-      fatal_error(ERROR_CONFIG, 'Error running ./autogen.sh')
-    end
-
-    `./configure &> #{LOG_FILE}`
-    unless $?.success?
-      fatal_error(ERROR_CONFIG, 'Error running ./configure')
-    end
+  `./autogen.sh &> #{LOG_FILE} && ./configure &> #{LOG_FILE}`
+  unless $?.success?
+    fatal_error(ERROR_CONFIG, 'Error setting up the configuration')
   end
 end
 
@@ -172,5 +165,7 @@ cli = CliOptions.new
 Dir.mktmpdir do |tmpdir|
   pull_repo(cli.branch, cli.repo, tmpdir)
   install_dependencies(cli.package_manager, tmpdir)
-  generate_config(tmpdir)
+  Dir.chdir("#{tmpdir}") do
+    generate_config(tmpdir)
+  end
 end

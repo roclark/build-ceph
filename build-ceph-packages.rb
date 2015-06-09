@@ -155,7 +155,6 @@ end
 
 def generate_config
   `(./autogen.sh && ./configure) &> #{LOG_FILE}`
-  #`./autogen.sh &> #{LOG_FILE} && ./configure &> #{LOG_FILE}`
   unless $?.success?
     fatal_error(ERROR_CONFIG, 'Error setting up the configuration')
   end

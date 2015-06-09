@@ -122,25 +122,25 @@ class CliOptions
 end
 
 
-def pull_repo(branch, repo, tmpdir)
+def pull_repo(branch, repo, tmp_dir)
   puts "Pulling #{branch} branch from the #{repo} repo."
   `git clone \
     --recursive \
     --depth=1 \
     --branch #{branch} \
     #{repo} \
-    #{tmpdir} \
+    #{tmp_dir} \
     &> #{LOG_FILE}`
   unless $?.success?
     fatal_error(ERROR_GIT, 'Error pulling from git')
   end
 end
 
-def install_dependencies(package_manager, tmpdir)
+def install_dependencies(package_manager, tmp_dir)
   if package_manager == :yum
-    `sudo yum -y install \`cat #{tmpdir}/deps.rpm.txt\` &> #{LOG_FILE}`
+    `sudo yum -y install \`cat #{tmp_dir}/deps.rpm.txt\` &> #{LOG_FILE}`
   else
-    `sudo apt-get -y install \`cat #{tmpdir}/deps.deb.txt\ &> #{LOG_FILE}`
+    `sudo apt-get -y install \`cat #{tmp_dir}/deps.deb.txt\ &> #{LOG_FILE}`
   end
 
   unless $?.success?
@@ -153,8 +153,9 @@ def fatal_error(exit_code, message)
   exit exit_code
 end
 
-def generate_config(tmpdir)
-  `./autogen.sh &> #{LOG_FILE} && ./configure &> #{LOG_FILE}`
+def generate_config
+  `(./autogen.sh && ./configure) &> #{LOG_FILE}`
+  #`./autogen.sh &> #{LOG_FILE} && ./configure &> #{LOG_FILE}`
   unless $?.success?
     fatal_error(ERROR_CONFIG, 'Error setting up the configuration')
   end
@@ -162,10 +163,10 @@ end
 
 
 cli = CliOptions.new
-Dir.mktmpdir do |tmpdir|
-  pull_repo(cli.branch, cli.repo, tmpdir)
-  install_dependencies(cli.package_manager, tmpdir)
-  Dir.chdir("#{tmpdir}") do
-    generate_config(tmpdir)
+Dir.mktmpdir do |tmp_dir|
+  pull_repo(cli.branch, cli.repo, tmp_dir)
+  install_dependencies(cli.package_manager, tmp_dir)
+  Dir.chdir(tmp_dir) do
+    generate_config
   end
 end

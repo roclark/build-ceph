@@ -122,6 +122,12 @@ class CliOptions
 end
 
 
+def delete_log
+  if File.exist?(LOG_FILE)
+    `rm #{LOG_FILE}`
+  end
+end
+
 def pull_repo(branch, repo, tmp_dir)
   puts "Pulling #{branch} branch from the #{repo} repo."
   `git clone \
@@ -130,7 +136,7 @@ def pull_repo(branch, repo, tmp_dir)
     --branch #{branch} \
     #{repo} \
     #{tmp_dir} \
-    &> #{LOG_FILE}`
+    &>> #{LOG_FILE}`
   unless $?.success?
     fatal_error(ERROR_GIT, 'Error pulling from git')
   end
@@ -162,6 +168,7 @@ end
 
 
 cli = CliOptions.new
+delete_log
 Dir.mktmpdir do |tmp_dir|
   pull_repo(cli.branch, cli.repo, tmp_dir)
   install_dependencies(cli.package_manager, tmp_dir)

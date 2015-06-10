@@ -16,7 +16,7 @@ ERROR_DEPENDENCY = 2
 ERROR_CONFIG = 3
 ERROR_USAGE = 4
 
-LOG_FILE = File.basename($PROGRAM_NAME, '.*') + '.log'
+LOG_FILE = Dir.pwd + '/' + File.basename($PROGRAM_NAME, '.*') + '.log'
 
 
 class String
@@ -154,7 +154,7 @@ def fatal_error(exit_code, message)
 end
 
 def generate_config
-  `(./autogen.sh && ./configure) &> #{LOG_FILE}`
+  `(./autogen.sh && ./configure) &>> #{LOG_FILE}`
   unless $?.success?
     fatal_error(ERROR_CONFIG, 'Error setting up the configuration')
   end

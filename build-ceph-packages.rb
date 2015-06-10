@@ -138,9 +138,9 @@ end
 
 def install_dependencies(package_manager, tmp_dir)
   if package_manager == :yum
-    `sudo yum -y install \`cat #{tmp_dir}/deps.rpm.txt\` &> #{LOG_FILE}`
+    `sudo yum -y install \`cat #{tmp_dir}/deps.rpm.txt\` &>> #{LOG_FILE}`
   else
-    `sudo apt-get -y install \`cat #{tmp_dir}/deps.deb.txt\ &> #{LOG_FILE}`
+    `sudo apt-get -y install \`cat #{tmp_dir}/deps.deb.txt\ &>> #{LOG_FILE}`
   end
 
   unless $?.success?

@@ -124,7 +124,7 @@ end
 
 def delete_log
   if File.exist?(LOG_FILE)
-    `rm #{LOG_FILE}`
+    File.delete(LOG_FILE)
   end
 end
 

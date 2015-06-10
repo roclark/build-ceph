@@ -166,6 +166,15 @@ def generate_config
   end
 end
 
+def build_packages(package_manager)
+  if package_manager == :yum
+    `rpmbuild &>> #{LOG_FILE}`
+  else
+    `(sudo apt-get install dpkg-dev && dpkg-checkbuilddeps && dpkg-build) \
+      &>> #{LOG_FILE}`
+  end
+end
+
 
 cli = CliOptions.new
 delete_log
@@ -175,4 +184,5 @@ Dir.mktmpdir do |tmp_dir|
   Dir.chdir(tmp_dir) do
     generate_config
   end
+  build_packages(cli.package_manager)
 end

@@ -15,6 +15,7 @@ ERROR_GIT = 1
 ERROR_DEPENDENCY = 2
 ERROR_CONFIG = 3
 ERROR_USAGE = 4
+ERROR_BUILD = 5
 
 LOG_FILE = Dir.pwd + '/' + File.basename($PROGRAM_NAME, '.*') + '.log'
 
@@ -71,7 +72,7 @@ class CliOptions
       option.on('-b', '--branch=<branch-name>', <<-EOS.strip_heredoc) do |branch|
           Use the specified branch of the repository. Default is to use master.
           EOS
-        @branch
+        @branch = branch
       end
 
       option.on('-h', '--help') do
@@ -168,10 +169,14 @@ end
 
 def build_packages(package_manager)
   if package_manager == :yum
-    `rpmbuild &>> #{LOG_FILE}`
+    `rpmbuild ceph.spec &>> #{LOG_FILE}`
   else
     `(sudo apt-get install dpkg-dev && dpkg-checkbuilddeps && dpkg-build) \
       &>> #{LOG_FILE}`
+  end
+
+  unless $?.success?
+    fatal_error(ERROR_BUILD, 'Error building packages')
   end
 end
 
@@ -183,6 +188,6 @@ Dir.mktmpdir do |tmp_dir|
   install_dependencies(cli.package_manager, tmp_dir)
   Dir.chdir(tmp_dir) do
     generate_config
+    build_packages(cli.package_manager)
   end
-  build_packages(cli.package_manager)
 end

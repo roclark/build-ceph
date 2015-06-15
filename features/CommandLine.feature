@@ -1,12 +1,15 @@
 Feature: Process Command Line Arguments
-  This feature is used to assess the proper parsing of
-  command-line arguments given by the user. This includes
-  setting variables for particular arguments and, where
-  applicable, exiting the script with the proper exit code.
+  As a developer
+  I want the script to support configuration options
+  So I can customize the installation to my environment, which may need a different repository or branch
 
-  Scenario: Default branch is master and default repo is https://github.com/HP-Scale-out-Storage/ceph.git
+  Scenario: Default branch is master
     When I run "./build-ceph-packages.rb"
-    Then the output should contain "Pulling master branch from the https://github.com/HP-Scale-out-Storage/ceph.git repo."
+    Then the output should contain "Pulling master branch"
+
+  Scenario: Default repo is https://github.com/HP-Scale-out-Storage/ceph.git
+    When I run "./build-ceph-packages.rb"
+    Then the output should contain "from the https://github.com/HP-Scale-out-Storage/ceph.git repo."
 
   Scenario: Use -r to set a new repository
     When I run "./build-ceph-packages.rb -r https://github.com/ceph/ceph.git"
@@ -26,20 +29,21 @@ Feature: Process Command Line Arguments
 
   Scenario: Use --help to display the help message and exit 0
     When I run "./build-ceph-packages.rb --help"
-    Then the exit status should be 0
+    Then the output should contain "usage: build-ceph-packages"
+    And the exit status should be 0
 
-  Scenario: Set an invalid repo
+  Scenario: Invalid repository returns an error message
     When I run "./build-ceph-packages.rb -r https://bad.repo.com"
     Then the output should contain "from the https://bad.repo.com repo."
-    And it should fail with
-    """
-    Error pulling from git
-    """
+    And it should fail with:
+      """
+      Error pulling from git
+      """
 
-  Scenario: Set an invalid branch
+  Scenario: Invalid branch returns an error message
     When I run "./build-ceph-packages.rb -b badbranch"
     Then the output should contain "Pulling badbranch branch"
-    And it should fail with
-    """
-    Error pulling from git
-    """
+    And it should fail with:
+      """
+      Error pulling from git
+      """

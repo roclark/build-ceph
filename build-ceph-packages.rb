@@ -123,6 +123,43 @@ class CliOptions
 end
 
 
+class Distribution
+  def initialize
+  end
+
+  def build_packages
+    fail "This method must be implemented."
+  end
+
+  def install_dependencies
+    fail "This method must be implemented."
+  end
+end
+
+
+class RedHat < Distribution
+  def build_packages
+    `rpmbuild ceph.spec.in &>> #{LOG_FILE}`
+  end
+
+  def install_dependencies(tmp_dir)
+    `sudo yum -y install \`cat #{tmp_dir}/deps.rpm.txt\` &>> #{LOG_FILE}`
+  end
+end
+
+
+class Debian < Distribution
+  def build_packages
+    `(sudo apt-get install dpkg-dev && dpkg-checkbuilddeps && dpkg-build) \
+      &>> #{LOG_FILE}`
+  end
+
+  def install_dependencies(tmp_dir)
+    `sudo apt-get -y install \`cat #{tmp_dir}/deps.deb.txt\ &>> #{LOG_FILE}`
+  end
+end
+
+
 def delete_log
   if File.exist?(LOG_FILE)
     File.delete(LOG_FILE)
@@ -143,18 +180,6 @@ def pull_repo(branch, repo, tmp_dir)
   end
 end
 
-def install_dependencies(package_manager, tmp_dir)
-  if package_manager == :yum
-    `sudo yum -y install \`cat #{tmp_dir}/deps.rpm.txt\` &>> #{LOG_FILE}`
-  else
-    `sudo apt-get -y install \`cat #{tmp_dir}/deps.deb.txt\ &>> #{LOG_FILE}`
-  end
-
-  unless $?.success?
-    fatal_error(ERROR_DEPENDENCY, 'Error installing dependencies')
-  end
-end
-
 def fatal_error(exit_code, message)
   puts "#{message}. Check #{LOG_FILE} for more details."
   exit exit_code
@@ -167,27 +192,19 @@ def generate_config
   end
 end
 
-def build_packages(package_manager)
-  if package_manager == :yum
-    `rpmbuild ceph.spec &>> #{LOG_FILE}`
-  else
-    `(sudo apt-get install dpkg-dev && dpkg-checkbuilddeps && dpkg-build) \
-      &>> #{LOG_FILE}`
-  end
-
-  unless $?.success?
-    fatal_error(ERROR_BUILD, 'Error building packages')
-  end
-end
-
 
 cli = CliOptions.new
+distro = if cli.package_manager == :yum
+  RedHat.new
+else
+  Debian.new
+end
 delete_log
 Dir.mktmpdir do |tmp_dir|
   pull_repo(cli.branch, cli.repo, tmp_dir)
-  install_dependencies(cli.package_manager, tmp_dir)
+  distro.install_dependencies(tmp_dir)
   Dir.chdir(tmp_dir) do
     generate_config
-    build_packages(cli.package_manager)
+    distro.build_packages
   end
 end

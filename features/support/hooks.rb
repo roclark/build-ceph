@@ -3,5 +3,5 @@ Before do
 end
 
 Before do
-  @aruba_timeout_seconds = 90
+  @aruba_timeout_seconds = 240
 end

@@ -1,8 +1,5 @@
-require 'rspec/expectations'
-require 'aruba'
-require 'aruba/config'
-include RSpec::Matchers
 require 'aruba/cucumber'
+require 'rspec/expectations'
 
 
 Before do

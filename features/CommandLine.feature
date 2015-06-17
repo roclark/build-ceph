@@ -34,8 +34,14 @@ Feature: Process Command Line Arguments
 
   Scenario: Invalid repository returns an error message
     When I run `build-ceph-packages -r https://bad.repo.com`
-    Then it should fail with "Error pulling from git"
+    Then it should fail with: 
+      """
+      Error pulling from git
+      """
 
   Scenario: Invalid branch returns an error message
     When I run `build-ceph-packages -b badbranch`
-    Then it should fail with "Error pulling from git"
+    Then it should fail with: 
+      """
+      Error pulling from git
+      """

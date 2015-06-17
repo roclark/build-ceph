@@ -27,10 +27,13 @@ Feature: Process Command Line Arguments
     When I run `build-ceph-packages --branch argonaut`
     Then the current git branch should be 'argonaut'
 
-  Scenario: Use --help to display the help message and exit 0
+  Scenario: Use -h to display the help message
+    When I run `build-ceph-packages -h`
+    Then it should pass with "usage: build-ceph-packages"
+
+  Scenario: Use --help to display the help message
     When I run `build-ceph-packages --help`
-    Then the output should contain "usage: build-ceph-packages"
-    And the exit status should be 0
+    Then it should pass with "usage: build-ceph-packages"
 
   Scenario: Invalid repository returns an error message
     When I run `build-ceph-packages -r https://bad.repo.com`

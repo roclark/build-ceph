@@ -1,11 +1,10 @@
 Then(/^the current git branch should be '([^']*)'$/) do |branch_name|
-  puts `cd /tmp/build-ceph-tmp/ && git branch`
-  #pending "will use 'git branch' to see if branch_name is listed"
+  expect(`cd /tmp/build-ceph-tmp/ && git branch`).to match branch_name
 end
 
 Then(/^the repository should be a clone of '([^']*)'$/) do |repo_name|
-  puts `cd /tmp/build-ceph-tmp/ && git config --get remote.origin.url && pwd`
-  #pending "will use 'git config --get remote.origin.url'"
+  expect(`cd /tmp/build-ceph-tmp/ && git config --get remote.origin.url`).to \
+    match repo_name
 end
 
 Then /^it should (pass|fail) with "([^"]*)"$/ do |pass_fail, partial_output|

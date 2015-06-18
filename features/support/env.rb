@@ -1,6 +1,7 @@
 require 'aruba/cucumber'
 require 'rspec/expectations'
 
+TMP_DIR = '/tmp/build-ceph-tmp'
 
 Before do
   @dirs = Dir.pwd

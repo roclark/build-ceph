@@ -4,27 +4,27 @@ Feature: Process Command Line Arguments
   So I can customize the installation to my environment, which may need a different repository or branch
 
   Scenario: Default branch is master
-    When I run `build-ceph-packages`
+    When I run `build-ceph-packages -t /tmp-build-ceph-tmp`
     Then the current git branch should be 'master'
 
   Scenario: Default repo is https://github.com/HP-Scale-out-Storage/ceph.git
-    When I run `build-ceph-packages`
+    When I run `build-ceph-packages -t /tmp-build-ceph-tmp`
     Then the repository should be a clone of 'https://github.com/HP-Scale-out-Storage/ceph.git'
 
   Scenario: Use -r to set a new repository
-    When I run `build-ceph-packages -r https://github.com/ceph/ceph.git`
+    When I run `build-ceph-packages -r https://github.com/ceph/ceph.git -t /tmp/build-ceph-tmp`
     Then the repository should be a clone of 'https://github.com/ceph/ceph.git'
 
   Scenario: Use --repo to set a new repository
-    When I run `build-ceph-packages --repo https://github.com/ceph/ceph.git`
+    When I run `build-ceph-packages --repo https://github.com/ceph/ceph.git -t /tmp/build-ceph-tmp`
     Then the repository should be a clone of 'https://github.com/ceph/ceph.git'
 
   Scenario: Use -b to set a new branch
-    When I run `build-ceph-packages -b argonaut`
+    When I run `build-ceph-packages -b argonaut -t /tmp/build-ceph-tmp`
     Then the current git branch should be 'argonaut'
 
   Scenario: Use --branch to set a new branch
-    When I run `build-ceph-packages --branch argonaut`
+    When I run `build-ceph-packages --branch argonaut -t /tmp/build-ceph-tmp`
     Then the current git branch should be 'argonaut'
 
   Scenario: Use -h to display the help message
@@ -36,9 +36,9 @@ Feature: Process Command Line Arguments
     Then it should pass with "usage: build-ceph-packages"
 
   Scenario: Invalid repository returns an error message
-    When I run `build-ceph-packages -r https://bad.repo.com`
+    When I run `build-ceph-packages -r https://bad.repo.com -t /tmp/build-ceph-tmp`
     Then it should fail with "Error pulling from git"
 
   Scenario: Invalid branch returns an error message
-    When I run `build-ceph-packages -b badbranch`
-    Then it should fail with "Error pulling from git" 
+    When I run `build-ceph-packages -b badbranch -t /tmp/build-ceph-tmp`
+    Then it should fail with "Error pulling from git"

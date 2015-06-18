@@ -1,12 +1,9 @@
-TMP_DIR = '/tmp/build-ceph-tmp/'
-
-
-Then(/^the current git branch should be '([^']*)'$/) do |branch_name|
+Then /^the current git branch should be '([^']*)'$/ do |branch_name|
   command = "cd #{TMP_DIR} && git branch"
   expect(`#{command}`).to match branch_name
 end
 
-Then(/^the repository should be a clone of '([^']*)'$/) do |repo_name|
+Then /^the repository should be a clone of '([^']*)'$/ do |repo_name|
   command = "cd #{TMP_DIR} && git config --get remote.origin.url"
   expect(`#{command}`).to match repo_name
 end

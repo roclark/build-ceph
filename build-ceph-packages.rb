@@ -5,6 +5,7 @@
 
 require 'optparse'
 require 'tmpdir'
+require 'fileutils'
 
 
 VERSION = '0.0.1'
@@ -29,8 +30,8 @@ end
 
 
 class CliOptions
-  attr_reader :repo, :branch, :build_rpms,
-                :build_debs, :package_manager
+  attr_reader :repo, :branch, :build_rpms, :tmp_dir,
+                :build_debs, :package_manager, :keep_tmpdir
 
   def initialize
     @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'
@@ -38,6 +39,8 @@ class CliOptions
     @no_debs = false
     @out_dir = ''
     @package_manager = :yum
+    @tmp_dir = Dir.mktmpdir
+    @keep_tmpdir = false
     process_cli_arguments
     create_output_directory
     determine_package_manager
@@ -57,6 +60,7 @@ class CliOptions
     usage: build-ceph-packages [-h|--help] [--version]
                          [-b|--branch=<branch-name>] [-r|--repo=<repo-url>]
                          [--no-debs] [-o|--output=<path>]
+                         [-t|--tmpdir=<tmp-dir>] [-k|--keep-tmpdir]
 
     This script builds the Ceph RPM and .deb packages from the specified branch
     of the specified git repository. On a Debian system, only the .deb packages
@@ -80,6 +84,10 @@ class CliOptions
         exit EXIT_SUCCESS
       end
 
+      option.on('-k', '--keep-tmpdir') do
+        @keep_tmpdir = true
+      end
+
       option.on('--no-debs') do
         @no_debs = true
       end
@@ -94,6 +102,13 @@ class CliOptions
           https://github.com/HP-Scale-out-Storage/ceph will be used.
           EOS
         @repo = repo
+      end
+
+      option.on('-t', '--tmpdir=<tmp-dir>', <<-EOS.strip_heredoc) do |tmp_dir|
+          Use the specified temporary directory. Default is to use a randomly
+          generated tmp directory.
+          EOS
+        @tmp_dir = tmp_dir
       end
 
       option.on('--version') do
@@ -160,6 +175,12 @@ class Debian < Distribution
 end
 
 
+def delete_dir(tmp_dir)
+  if Dir.exists?(tmp_dir)
+    FileUtils.rm_rf(tmp_dir)
+  end
+end
+
 def delete_log
   if File.exist?(LOG_FILE)
     File.delete(LOG_FILE)
@@ -200,11 +221,12 @@ else
   Debian.new
 end
 delete_log
-Dir.mktmpdir do |tmp_dir|
-  pull_repo(cli.branch, cli.repo, tmp_dir)
-  distro.install_dependencies(tmp_dir)
-  Dir.chdir(tmp_dir) do
-    generate_config
-    distro.build_packages
-  end
+if !cli.keep_tmpdir
+  delete_dir(cli.tmp_dir)
+end
+pull_repo(cli.branch, cli.repo, cli.tmp_dir)
+distro.install_dependencies(cli.tmp_dir)
+Dir.chdir(cli.tmp_dir) do
+  generate_config
+  distro.build_packages
 end

@@ -4,41 +4,41 @@ Feature: Process Command Line Arguments
   So I can customize the installation to my environment, which may need a different repository or branch
 
   Scenario: Default branch is master
-    When I run `build-ceph-packages -t /tmp-build-ceph-tmp`
+    When I run build-ceph with ""
     Then the current git branch should be 'master'
 
   Scenario: Default repo is https://github.com/HP-Scale-out-Storage/ceph.git
-    When I run `build-ceph-packages -t /tmp-build-ceph-tmp`
+    When I run build-ceph with ""
     Then the repository should be a clone of 'https://github.com/HP-Scale-out-Storage/ceph.git'
 
   Scenario: Use -r to set a new repository
-    When I run `build-ceph-packages -r https://github.com/ceph/ceph.git -t /tmp/build-ceph-tmp`
+    When I run build-ceph with "-r https://github.com/ceph/ceph.git"
     Then the repository should be a clone of 'https://github.com/ceph/ceph.git'
 
   Scenario: Use --repo to set a new repository
-    When I run `build-ceph-packages --repo https://github.com/ceph/ceph.git -t /tmp/build-ceph-tmp`
+    When I run build-ceph with "--repo https://github.com/ceph/ceph.git"
     Then the repository should be a clone of 'https://github.com/ceph/ceph.git'
 
   Scenario: Use -b to set a new branch
-    When I run `build-ceph-packages -b argonaut -t /tmp/build-ceph-tmp`
-    Then the current git branch should be 'argonaut'
+    When I run build-ceph with "-b next"
+    Then the current git branch should be 'next'
 
   Scenario: Use --branch to set a new branch
-    When I run `build-ceph-packages --branch argonaut -t /tmp/build-ceph-tmp`
-    Then the current git branch should be 'argonaut'
+    When I run build-ceph with "--branch next"
+    Then the current git branch should be 'next'
 
   Scenario: Use -h to display the help message
-    When I run `build-ceph-packages -h`
+    When I run build-ceph with "-h"
     Then it should pass with "usage: build-ceph-packages"
 
   Scenario: Use --help to display the help message
-    When I run `build-ceph-packages --help`
+    When I run build-ceph with "--help"
     Then it should pass with "usage: build-ceph-packages"
 
   Scenario: Invalid repository returns an error message
-    When I run `build-ceph-packages -r https://bad.repo.com -t /tmp/build-ceph-tmp`
+    When I run build-ceph with a bad option "-r https://bad.repo.com"
     Then it should fail with "Error pulling from git"
 
   Scenario: Invalid branch returns an error message
-    When I run `build-ceph-packages -b badbranch -t /tmp/build-ceph-tmp`
+    When I run build-ceph with a bad option "-b badbranch"
     Then it should fail with "Error pulling from git"

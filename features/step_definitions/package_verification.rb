@@ -1,4 +1,4 @@
-Given /^I am running on a CentOS machine$/ do
+Given /^I am running on a CentOS or RHEL machine$/ do
   expect(`lsb_release -is`).to match(/RHEL|CentOS/)
 end
 

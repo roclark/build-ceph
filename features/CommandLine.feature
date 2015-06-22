@@ -40,5 +40,5 @@ Feature: Process Command Line Arguments
     Then it should fail with "Error pulling from git"
 
   Scenario: Invalid branch returns an error message
-    When I run build-ceph with "-b badbranch#"
+    When I run build-ceph with "-b badbranch"
     Then it should fail with "Error pulling from git"

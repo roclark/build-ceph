@@ -154,7 +154,7 @@ end
 
 class RedHat < Distribution
   def build_packages
-    `rpmbuild ceph.spec.in &>> #{LOG_FILE}`
+    `rpmbuild ceph.spec &>> #{LOG_FILE}`
   end
 
   def install_dependencies(tmp_dir)

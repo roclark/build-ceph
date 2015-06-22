@@ -36,9 +36,9 @@ Feature: Process Command Line Arguments
     Then it should pass with "usage: build-ceph-packages"
 
   Scenario: Invalid repository returns an error message
-    When I run build-ceph with a bad option "-r https://bad.repo.com"
+    When I run build-ceph with "-r https://bad.repo.com"
     Then it should fail with "Error pulling from git"
 
   Scenario: Invalid branch returns an error message
-    When I run build-ceph with a bad option "-b badbranch"
+    When I run build-ceph with "-b badbranch#"
     Then it should fail with "Error pulling from git"

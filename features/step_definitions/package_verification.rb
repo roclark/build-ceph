@@ -7,3 +7,11 @@ Then /^the dependencies in the list should all be installed$/ do
     expect(`rpm -qa | grep -o #{line}`).to match line
   end
 end
+
+Then /^a spec file should be created$/ do
+  check_file_presence("#{CEPH_SPEC}", true)
+end
+
+Then /^the package should be in the output directory$/ do
+  check_file_presence('ceph.deb', true)
+end

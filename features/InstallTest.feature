@@ -1,4 +1,3 @@
-@announce
 Feature: Test for all of the package and dependency installations
   As a developer
   I want to verify proper installation of all packages and dependencies

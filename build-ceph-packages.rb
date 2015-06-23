@@ -171,7 +171,7 @@ class Debian < Distribution
   end
 
   def install_dependencies(tmp_dir)
-    `sudo apt-get -y install \`cat #{tmp_dir}/deps.deb.txt\ &>> #{LOG_FILE}`
+    `sudo apt-get -y install \`cat #{tmp_dir}/deps.deb.txt\` &>> #{LOG_FILE}`
   end
 end
 

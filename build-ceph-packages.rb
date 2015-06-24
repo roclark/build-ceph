@@ -30,8 +30,8 @@ end
 
 
 class CliOptions
-  attr_reader :repo, :branch, :build_rpms, :tmp_dir,
-                :build_debs, :package_manager, :keep_tmpdir
+  attr_reader :branch, :build_debs, :build_rpms,
+              :keep_tmpdir, :repo, :tmp_dir
 
   def initialize
     @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'
@@ -154,11 +154,17 @@ end
 
 class RedHat < Distribution
   def build_packages
-    `rpmbuild -ba ceph.spec &>> #{LOG_FILE}`
+    `rpmbuild -b ceph.spec &>> #{LOG_FILE}`
+    unless $?.success?
+      fail_error(ERROR_BUILD, 'Error building .deb package')
+    end
   end
 
-  def install_dependencies(tmp_dir)
-    `sudo yum -y install \`cat #{tmp_dir}/deps.rpm.txt\` &>> #{LOG_FILE}`
+  def install_dependencies
+    %x{sudo yum -y install `cat deps.rpm.txt` &>> #{LOG_FILE}}
+    unless $?.success?
+      fail_error(ERROR_DEPENDENCY, 'Error installing dependencies')
+    end
   end
 end
 
@@ -167,10 +173,15 @@ class Debian < Distribution
   def build_packages
     `(sudo apt-get install dpkg-dev && dpkg-checkbuilddeps && dpkg-build) \
       &>> #{LOG_FILE}`
+    unless $?.success?
+      fail_error(ERROR_BUILD, 'Error building .deb package')
   end
 
-  def install_dependencies(tmp_dir)
-    `sudo apt-get -y install \`cat #{tmp_dir}/deps.deb.txt\` &>> #{LOG_FILE}`
+  def install_dependencies
+    %x{sudo apt-get -y install `cat deps.deb.txt` &>> #{LOG_FILE}}
+    unless $?.success?
+      fail_error(ERROR_DEPENDENCY, 'Error installing dependencies')
+    end
   end
 end
 
@@ -225,8 +236,8 @@ if !cli.keep_tmpdir
   delete_dir(cli.tmp_dir)
 end
 pull_repo(cli.branch, cli.repo, cli.tmp_dir)
-distro.install_dependencies(cli.tmp_dir)
 Dir.chdir(cli.tmp_dir) do
+  distro.install_dependencies
   generate_config
   distro.build_packages
 end

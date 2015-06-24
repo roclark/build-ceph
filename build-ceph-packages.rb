@@ -155,16 +155,12 @@ end
 class RedHat < Distribution
   def build_packages
     `rpmbuild -ba ceph.spec &>> #{LOG_FILE}`
-    unless $?.success?
-      fail_error(ERROR_BUILD, 'Error building RPM package')
-    end
+    fail_if_error(ERROR_BUILD, 'Error building RPM package')
   end
 
   def install_dependencies
     %x{sudo yum -y install `cat deps.rpm.txt` &>> #{LOG_FILE}}
-    unless $?.success?
-      fail_error(ERROR_DEPENDENCY, 'Error installing dependencies')
-    end
+    fail_if_error(ERROR_DEPENDENCY, 'Error installing dependencies')
   end
 end
 
@@ -173,15 +169,12 @@ class Debian < Distribution
   def build_packages
     `(sudo apt-get install dpkg-dev && dpkg-checkbuilddeps && dpkg-build) \
       &>> #{LOG_FILE}`
-    unless $?.success?
-      fail_error(ERROR_BUILD, 'Error building .deb package')
+    fail_if_error(ERROR_BUILD, 'Error building .deb package')
   end
 
   def install_dependencies
     %x{sudo apt-get -y install `cat deps.deb.txt` &>> #{LOG_FILE}}
-    unless $?.success?
-      fail_error(ERROR_DEPENDENCY, 'Error installing dependencies')
-    end
+    fail_if_error(ERROR_DEPENDENCY, 'Error installing dependencies')
   end
 end
 
@@ -207,21 +200,19 @@ def pull_repo(branch, repo, tmp_dir)
     #{repo} \
     #{tmp_dir} \
     &>> #{LOG_FILE}`
-  unless $?.success?
-    fatal_error(ERROR_GIT, 'Error pulling from git')
-  end
+  fatal_if_error(ERROR_GIT, 'Error pulling from git')
 end
 
-def fatal_error(exit_code, message)
-  puts "#{message}. Check #{LOG_FILE} for more details."
-  exit exit_code
+def fatal_if_error(exit_code, message)
+  unless $?.success?
+    puts "#{message}. Check #{LOG_FILE} for more details."
+    exit exit_code
+  end
 end
 
 def generate_config
   `(./autogen.sh && ./configure) &>> #{LOG_FILE}`
-  unless $?.success?
-    fatal_error(ERROR_CONFIG, 'Error setting up the configuration')
-  end
+  fatal_if_error(ERROR_CONFIG, 'Error setting up the configuration')
 end
 
 

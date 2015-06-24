@@ -9,5 +9,5 @@ Then /^a spec file should be created$/ do
 end
 
 Then /^the packages should be in the output directory$/ do
-  check_file_presence('ceph.deb', true)
+  check_file_presence("#{RPM_NAME}", true)
 end

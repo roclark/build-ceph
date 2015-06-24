@@ -1,7 +1,7 @@
 Feature: Installs packages and dependencies
   As a developer
   I want the build dependencies to be automatically installed so the build
-  won't break for missing dependencies.
+  won't break for missing dependencies
 
   Scenario: Dependencies are installed
     When I run build-ceph
@@ -11,6 +11,7 @@ Feature: Installs packages and dependencies
     When I run build-ceph
     Then a spec file should be created
 
-  Scenario: Check the package has been properly output
+Feature: Builds installation packages
+  Scenario: The packages are created
     When I run build-ceph
-    Then the package should be in the output directory
+    Then the packages should be in the output directory

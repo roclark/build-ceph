@@ -8,6 +8,6 @@ Then /^a spec file should be created$/ do
   check_file_presence("#{CEPH_SPEC}", true)
 end
 
-Then /^the package should be in the output directory$/ do
+Then /^the packages should be in the output directory$/ do
   check_file_presence('ceph.deb', true)
 end

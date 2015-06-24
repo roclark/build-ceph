@@ -1,3 +1,7 @@
+When /^I run build-ceph$/ do
+  run_simple("bin/build-ceph-packages -t #{TMP_DIR}", false)
+end
+
 When /^I run build-ceph with "([^"]*)"$/ do |options|
   run_simple("bin/build-ceph-packages #{options} -t #{TMP_DIR}", false)
 end

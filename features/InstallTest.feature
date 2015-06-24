@@ -1,18 +1,16 @@
-Feature: Test for all of the package and dependency installations
+Feature: Installs packages and dependencies
   As a developer
-  I want to verify proper installation of all packages and dependencies
+  I want the build dependencies to be automatically installed so the build
+  won't break for missing dependencies.
 
-  Background:
-    Given I am running on a CentOS or RHEL machine
+  Scenario: Dependencies are installed
+    When I run build-ceph
+    Then all the dependencies should be installed
 
-  Scenario: Check dependencies are properly installed
-    When I run build-ceph with ""
-    Then the dependencies in the list should all be installed
-
-  Scenario: Check that a spec file is created properly
-    When I run build-ceph with ""
+  Scenario: A spec file is generated
+    When I run build-ceph
     Then a spec file should be created
 
   Scenario: Check the package has been properly output
-    When I run build-ceph with ""
+    When I run build-ceph
     Then the package should be in the output directory

@@ -1,5 +1,5 @@
 Then /^the dependencies in the list should all be installed$/ do
-  IO.foreach("#{RPM_DEP_LIST}") do |line|
+  IO.foreach(RPM_DEP_LIST) do |line|
     expect(`rpm --query #{line}`).to match(/#{line}-/)
   end
 end

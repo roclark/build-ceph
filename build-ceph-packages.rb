@@ -154,9 +154,9 @@ end
 
 class RedHat < Distribution
   def build_packages
-    `rpmbuild -b ceph.spec &>> #{LOG_FILE}`
+    `rpmbuild -ba ceph.spec &>> #{LOG_FILE}`
     unless $?.success?
-      fail_error(ERROR_BUILD, 'Error building .deb package')
+      fail_error(ERROR_BUILD, 'Error building RPM package')
     end
   end
 

@@ -11,9 +11,11 @@ Feature: Installs packages and dependencies
     When I run build-ceph
     Then a spec file should be created
 
+
 Feature: Builds installation packages
   As a developer
   I want the packages to be output to the specified directory
+  so they can be easily retrieved for future use
 
   Scenario: The packages are created
     When I run build-ceph

@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-#
 # (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
 # All rights reserved
 

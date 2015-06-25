@@ -3,12 +3,13 @@
 # (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
 # All rights reserved
 
-require './CliOptions'
-require './Distribution'
 require 'fileutils'
 require 'optparse'
-require './String'
 require 'tmpdir'
+
+require_relative 'cli_options'
+require_relative 'distribution'
+require_relative 'string'
 
 
 VERSION = '0.0.1'

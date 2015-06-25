@@ -9,7 +9,7 @@ require 'tmpdir'
 
 require_relative 'cli_options'
 require_relative 'distribution'
-require_relative 'string'
+require_relative 'monkey_patches/string'
 
 
 VERSION = '0.0.1'

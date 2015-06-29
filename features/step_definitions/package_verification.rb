@@ -10,7 +10,7 @@ Then /^the dependencies in the list should all be installed$/ do
 end
 
 Then /^a spec file should be created$/ do
-  check_file_presence("#{CEPH_SPEC}", true)
+  check_file_presence(CEPH_SPEC, true)
 end
 
 Then /^the packages should be in the output directory$/ do

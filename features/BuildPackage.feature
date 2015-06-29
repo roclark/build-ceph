@@ -1,7 +1,7 @@
 Feature: Builds installation packages
-  As a developer
+  As a user
   I want the packages to be output to the specified directory
-  so they can be easily retrieved for future use
+  so I can install ceph easily
 
   Scenario: The packages are created
     When I run build-ceph

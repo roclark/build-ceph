@@ -1,0 +1,16 @@
+ceph-common
+ceph-test
+cephfs-java
+devel
+fuse
+libs-compat
+libcephfs1
+libcephfs_jnil
+librados2
+libradosstriper1
+librbd1
+python-ceph
+radosgw
+rbd-fuse
+resource-agents
+rest-bench

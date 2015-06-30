@@ -27,12 +27,12 @@ end
 
 Then /^the DEB packages should be in the output directory$/ do
   File.open(DEB_PACKAGE_LIST).each do |filename|
-    check_file_presence("#{filename.gsub("\n","")}.deb", true)
+    check_file_presence("#{filename.chomp}.deb", true)
   end
 end
 
 Then /^the RPM packages should be in the output directory$/ do
   File.open(DEB_PACKAGE_LIST).each do |filename|
-    check_file_presence("#{filename.gsub("\n","")}.rpm", true)
+    check_file_presence("#{filename.chomp}.rpm", true)
   end
 end

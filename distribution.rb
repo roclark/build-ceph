@@ -30,8 +30,10 @@ end
 
 class Debian < Distribution
   def build_packages
-    `(sudo apt-get install dpkg-dev && dpkg-checkbuilddeps && \
-      dpkg-buildpackage) &>> #{LOG_FILE}`
+    `(sudo apt-get install dpkg-dev && \
+      dpkg-checkbuilddeps && \
+      dpkg-buildpackage) \
+      &>> #{LOG_FILE}`
     fail_if_error(ERROR_BUILD, 'Error building .deb package')
   end
 

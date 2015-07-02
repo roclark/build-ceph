@@ -10,3 +10,7 @@ Feature: Removes any created directories
   Scenario: Directory is removed on unsuccessful exit
     When I run build-ceph with "-b badbranch"
     Then the temporary directory should be removed
+
+  Scenario: '-k' keeps the temporary directory
+    When I run build-ceph with "-k"
+    Then the temporary directory should not be removed

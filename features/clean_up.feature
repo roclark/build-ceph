@@ -1,4 +1,4 @@
-Feature: Removes any created directories
+Feature: Removes temporary ceph directories
   As a developer
   I want all of the temporary directories I created to be deleted
   so I am not wasting space on my machine

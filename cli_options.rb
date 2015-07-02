@@ -79,6 +79,7 @@ class CliOptions
           Use the specified temporary directory. Default is to use a randomly
           generated tmp directory.
           EOS
+        delete_dir(@tmp_dir)
         @tmp_dir = tmp_dir
       end
 

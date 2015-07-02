@@ -6,13 +6,13 @@ class CliOptions
               :package_manager, :repo, :tmp_dir
 
   def initialize
-    @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'
     @branch = 'master'
+    @keep_tmpdir = false
     @no_debs = false
     @out_dir = ''
     @package_manager = :yum
+    @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'
     @tmp_dir = Dir.mktmpdir
-    @keep_tmpdir = false
     process_cli_arguments
     create_output_directory
     determine_package_manager

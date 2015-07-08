@@ -13,8 +13,8 @@ Feature: Removes temporary directories
 
   Scenario: '-k' keeps the temporary directory
     When I run build-ceph with "-k"
-    Then the temporary directory should not be removed
+    Then the temporary directory should exist
 
   Scenario: '--keep-tmpdir' keeps the temporary directory
     When I run build-ceph with "--keep-tmpdir"
-    Then the temporary directory should not be removed 
+    Then the temporary directory should exist

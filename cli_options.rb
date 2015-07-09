@@ -12,7 +12,7 @@ class CliOptions
     @out_dir = ''
     @package_manager = :yum
     @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'
-    @tmp_dir
+    @tmp_dir = nil
     process_cli_arguments
     create_output_directory
     determine_package_manager

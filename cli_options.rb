@@ -95,9 +95,7 @@ class CliOptions
   end
 
   def delete_dir(tmp_dir)
-    if Dir.exists?(tmp_dir)
-      FileUtils.rm_rf(tmp_dir)
-    end
+    FileUtils.rm_rf(tmp_dir) if Dir.exists?(tmp_dir)
   end
 
   def determine_package_manager

@@ -18,3 +18,11 @@ Feature: Removes temporary directories
   Scenario: '--keep-tmpdir' keeps the temporary directory
     When I run build-ceph with "--keep-tmpdir"
     Then the temporary directory should exist
+
+  Scenario: '-t' specifies a temporary directory
+    When I run build-ceph with "-t /tmp/build-ceph-tmp/"
+    Then the temporary directory should not exist
+
+  Scenario: '--tmp-dir' specifies a temporary directory
+    When I run build-ceph with "--tmp-dir /tmp/build-ceph-tmp/"
+    Then the temporary directory should not exist

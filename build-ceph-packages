@@ -53,13 +53,17 @@ def generate_config
   fail_if_error(ERROR_CONFIG, 'Error setting up the configuration')
 end
 
+def determine_distro(package_manager)
+  if package_manager == :yum
+    return RedHat.new
+  else
+    return Debian.new
+  end
+end
+
 
 cli = CliOptions.new
-distro = if cli.package_manager == :yum
-  RedHat.new
-else
-  Debian.new
-end
+distro = determine_distro(cli.package_manager)
 delete_log
 pull_repo(cli.branch, cli.repo, cli.tmp_dir)
 Dir.chdir(cli.tmp_dir) do

@@ -2,21 +2,25 @@
 # All rights reserved
 
 class CliOptions
-  attr_reader :branch, :build_debs, :build_rpms, :keep_tmpdir,
-              :package_manager, :repo, :tmp_dir
+  attr_reader :branch, :build_debs, :build_rpms, :package_manager, :repo
+
+  @@keep_tmpdir = false
+  @@tmp_dir = nil
 
   def initialize
     @branch = 'master'
-    @keep_tmpdir = false
     @no_debs = false
     @out_dir = ''
     @package_manager = :yum
     @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'
-    @tmp_dir = Dir.mktmpdir
     process_cli_arguments
     create_output_directory
     determine_package_manager
     determine_packages_to_build
+  end
+
+  def self.get_tmp_dir
+    return @@tmp_dir
   end
 
   private
@@ -56,7 +60,7 @@ class CliOptions
       end
 
       option.on('-k', '--keep-tmpdir') do
-        @keep_tmpdir = true
+        @@keep_tmpdir = true
       end
 
       option.on('--no-debs') do
@@ -79,8 +83,7 @@ class CliOptions
           Use the specified temporary directory. Default is to use a randomly
           generated tmp directory.
           EOS
-        delete_dir(@tmp_dir)
-        @tmp_dir = tmp_dir
+        @@tmp_dir = tmp_dir
       end
 
       option.on('--version') do
@@ -88,6 +91,12 @@ class CliOptions
         exit EXIT_SUCCESS
       end
     end.parse!
+
+    @@tmp_dir = Dir.mktmpdir if @@tmp_dir.nil?
+  end
+
+  at_exit do
+    delete_dir(@@tmp_dir) unless @@keep_tmpdir
   end
 
   def determine_package_manager

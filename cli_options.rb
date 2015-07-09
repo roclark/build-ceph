@@ -94,6 +94,12 @@ class CliOptions
     end
   end
 
+  def delete_dir(tmp_dir)
+    if Dir.exists?(tmp_dir)
+      FileUtils.rm_rf(tmp_dir)
+    end
+  end
+
   def determine_package_manager
     if File.exist?('/etc/yum')
       @package_manager = :yum

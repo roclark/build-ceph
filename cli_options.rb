@@ -89,10 +89,9 @@ class CliOptions
     end.parse!
 
     @tmp_dir = Dir.mktmpdir if @tmp_dir.nil?
-  end
-
-  at_exit do
-    delete_dir(@tmp_dir) unless @keep_tmpdir
+    at_exit do
+      delete_dir(@tmp_dir) unless @keep_tmpdir
+    end
   end
 
   def determine_package_manager

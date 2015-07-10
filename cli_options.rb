@@ -83,14 +83,5 @@ class CliOptions
         exit EXIT_SUCCESS
       end
     end.parse!
-
-    @tmp_dir = Dir.mktmpdir if @tmp_dir.nil?
-    at_exit do
-      delete_dir(@tmp_dir) unless @keep_tmpdir
-    end
-  end
-
-  def delete_dir(tmp_dir)
-    FileUtils.rm_rf(tmp_dir) if Dir.exists?(tmp_dir)
   end
 end

@@ -11,6 +11,7 @@ require_relative 'cli_options'
 require_relative 'distribution'
 require_relative 'monkey_patches/string'
 require_relative 'package_management'
+require_relative 'temp_directory_handler'
 
 
 VERSION = '0.0.1'
@@ -64,11 +65,12 @@ end
 
 
 cli = CliOptions.new
+temp_directory_handler = TempDirectoryHandler.new
 package_management = PackageManagement.new(cli.no_debs)
 distro = determine_distro(package_management.package_manager)
 delete_log
-pull_repo(cli.branch, cli.repo, cli.tmp_dir)
-Dir.chdir(cli.tmp_dir) do
+pull_repo(cli.branch, cli.repo, temp_directory_handler.tmp_dir)
+Dir.chdir(temp_directory_handler.tmp_dir) do
   distro.install_dependencies
   generate_config
   distro.build_packages

@@ -2,13 +2,16 @@
 # All rights reserved
 
 class PackageManagement
-  attr_reader :build_debs, :build_rpms, :package_manager
+  attr_reader :build_debs, :build_rpms, :no_debs, :package_manager
 
-  def initialize
-    @build_debs
-    @build_rpms
+  def initialize(no_debs=false)
+    @no_debs = no_debs
     @package_manager = :yum
+    determine_package_manager
+    determine_packages_to_build
   end
+
+  private
 
   def determine_package_manager
     if File.exist?('/etc/yum')

@@ -2,21 +2,17 @@
 # All rights reserved
 
 class CliOptions
-  attr_reader :branch, :build_debs, :build_rpms, :keep_tmpdir,
-              :package_manager, :repo, :tmp_dir
+  attr_reader :branch, :keep_tmpdir, :no_debs, :repo, :tmp_dir
 
   def initialize
     @branch = 'master'
     @keep_tmpdir = false
     @no_debs = false
     @out_dir = ''
-    @package_manager = :yum
     @repo = 'https://github.com/HP-Scale-out-Storage/ceph.git'
     @tmp_dir = nil
     process_cli_arguments
     create_output_directory
-    determine_package_manager
-    determine_packages_to_build
   end
 
   private
@@ -96,23 +92,5 @@ class CliOptions
 
   def delete_dir(tmp_dir)
     FileUtils.rm_rf(tmp_dir) if Dir.exists?(tmp_dir)
-  end
-
-  def determine_package_manager
-    if File.exist?('/etc/yum')
-      @package_manager = :yum
-    else
-      @package_manager = :apt
-    end
-  end
-
-  def determine_packages_to_build
-    if `lsb_release -is`.match(/RHEL|CentOS/)
-      @build_rpms = true
-      @build_debs = !@no_debs
-    else
-      @build_rpms = false
-      @build_debs = true
-    end
   end
 end

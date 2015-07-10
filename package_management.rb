@@ -1,10 +1,10 @@
 # (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
 # All rights reserved
 
-class PackageManagement
-  attr_reader :build_debs, :build_rpms, :no_debs, :package_manager
+class PackageManager
+  attr_reader :build_debs, :build_rpms, :package_manager
 
-  def initialize(no_debs=false)
+  def initialize(no_debs)
     @no_debs = no_debs
     @package_manager = :yum
     determine_package_manager

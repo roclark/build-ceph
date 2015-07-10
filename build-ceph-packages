@@ -65,7 +65,7 @@ end
 
 
 cli = CliOptions.new
-temp_directory_handler = TempDirectoryHandler.new
+temp_directory_handler = TempDirectoryHandler.new(cli.keep_tmpdir, cli.tmp_dir)
 package_management = PackageManagement.new(cli.no_debs)
 distro = determine_distro(package_management.package_manager)
 delete_log

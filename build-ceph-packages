@@ -10,6 +10,7 @@ require 'tmpdir'
 require_relative 'cli_options'
 require_relative 'distribution'
 require_relative 'monkey_patches/string'
+require_relative 'package_management'
 
 
 VERSION = '0.0.1'
@@ -63,7 +64,8 @@ end
 
 
 cli = CliOptions.new
-distro = determine_distro(cli.package_manager)
+package_management = PackageManagement.new(cli.no_debs)
+distro = determine_distro(package_management.package_manager)
 delete_log
 pull_repo(cli.branch, cli.repo, cli.tmp_dir)
 Dir.chdir(cli.tmp_dir) do

@@ -2,24 +2,15 @@
 # All rights reserved
 
 class TempDirectoryHandler
-  attr_reader :tmp_dir
+  attr_reader :keep_tmpdir, :tmp_dir
 
-  def initialize
-    @tmp_dir = nil
-    process_cli_arguments
+  def initialize(keep_tmpdir=false, tmp_dir=nil)
+    @keep_tmpdir = keep_tmpdir
+    @tmp_dir = tmp_dir
+    create_tmp_dir
   end
 
-  def process_cli_arguments
-    OptionParser.new do |option|
-
-      option.on('-t', '--tmpdir=<tmp-dir>', <<-EOS.strip_heredoc) do |tmp_dir|
-          Use the specified temporary directory. Default is to use a randomly
-          generated tmp directory.
-          EOS
-        @tmp_dir = tmp_dir
-      end
-    end.parse!
-
+  def create_tmp_dir
     @tmp_dir = Dir.mktmpdir if @tmp_dir.nil?
     at_exit do
       delete_dir(@tmp_dir) unless @keep_tmpdir

@@ -5,10 +5,9 @@ class PackageManager
   attr_reader :build_debs, :build_rpms, :distro, :package_manager
 
   def initialize(no_debs)
-    @no_debs = no_debs
     @package_manager = :yum
     determine_package_manager
-    determine_packages_to_build
+    determine_packages_to_build(no_debs)
     @distro = determine_distro
   end
 
@@ -22,10 +21,10 @@ class PackageManager
     end
   end
 
-  def determine_packages_to_build
+  def determine_packages_to_build(no_debs)
     if `lsb_release -is`.match(/RHEL|CentOS/i)
       @build_rpms = true
-      @build_debs = !@no_debs
+      @build_debs = !no_debs
     else
       @build_rpms = false
       @build_debs = true

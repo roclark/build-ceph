@@ -1,11 +1,11 @@
 # (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
 # All rights reserved
 
-class TempDirectoryHandler
-  attr_reader :keep_tmpdir, :tmp_dir
+class TmpDir
+  attr_reader :tmp_dir
 
-  def initialize(keep_tmpdir=false, tmp_dir=nil)
-    @keep_tmpdir = keep_tmpdir
+  def initialize(keep_tmp_dir, tmp_dir)
+    @keep_tmp_dir = keep_tmp_dir
     @tmp_dir = tmp_dir
     create_tmp_dir
   end
@@ -13,11 +13,14 @@ class TempDirectoryHandler
   def create_tmp_dir
     @tmp_dir = Dir.mktmpdir if @tmp_dir.nil?
     at_exit do
-      delete_dir(@tmp_dir) unless @keep_tmpdir
+      delete_dir unless @keep_tmp_dir
     end
+    return @tmp_dir
   end
 
-  def delete_dir(tmp_dir)
-    FileUtils.rm_rf(tmp_dir) if Dir.exists?(tmp_dir)
+  private
+
+  def delete_dir
+    FileUtils.rm_rf(@tmp_dir) if Dir.exists?(@tmp_dir)
   end
 end

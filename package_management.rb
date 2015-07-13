@@ -9,7 +9,7 @@ class PackageManager
     @package_manager = :yum
     determine_package_manager
     determine_packages_to_build
-    @distro = determine_distro(@package_manager)
+    @distro = determine_distro
   end
 
   private
@@ -29,6 +29,14 @@ class PackageManager
     else
       @build_rpms = false
       @build_debs = true
+    end
+  end
+
+  def determine_distro
+    if @package_manager == :yum
+      return RedHat.new
+    else
+      return Debian.new
     end
   end
 end

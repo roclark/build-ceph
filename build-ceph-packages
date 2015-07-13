@@ -65,12 +65,12 @@ end
 
 
 cli = CliOptions.new
-temp_directory_handler = TempDirectoryHandler.new(cli.keep_tmpdir, cli.tmp_dir)
-package_management = PackageManagement.new(cli.no_debs)
+tmp_dir = TmpDir.new(cli.keep_tmpdir, cli.tmp_dir).tmp_dir
+package_management = PackageManager.new(cli.no_debs)
 distro = determine_distro(package_management.package_manager)
 delete_log
-pull_repo(cli.branch, cli.repo, temp_directory_handler.tmp_dir)
-Dir.chdir(temp_directory_handler.tmp_dir) do
+pull_repo(cli.branch, cli.repo, tmp_dir)
+Dir.chdir(tmp_dir) do
   distro.install_dependencies
   generate_config
   distro.build_packages

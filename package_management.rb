@@ -2,13 +2,14 @@
 # All rights reserved
 
 class PackageManager
-  attr_reader :build_debs, :build_rpms, :package_manager
+  attr_reader :build_debs, :build_rpms, :distro, :package_manager
 
   def initialize(no_debs)
     @no_debs = no_debs
     @package_manager = :yum
     determine_package_manager
     determine_packages_to_build
+    @distro = determine_distro(@package_manager)
   end
 
   private

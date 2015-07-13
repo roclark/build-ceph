@@ -66,8 +66,7 @@ end
 
 cli = CliOptions.new
 tmp_dir = TmpDir.new(cli.keep_tmpdir, cli.tmp_dir).tmp_dir
-package_management = PackageManager.new(cli.no_debs)
-distro = determine_distro(package_management.package_manager)
+distro = PackageManager.new(cli.no_debs).distro
 delete_log
 pull_repo(cli.branch, cli.repo, tmp_dir)
 Dir.chdir(tmp_dir) do

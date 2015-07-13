@@ -5,15 +5,14 @@ class TmpDir
   attr_reader :tmp_dir
 
   def initialize(keep_tmp_dir, tmp_dir)
-    @keep_tmp_dir = keep_tmp_dir
     @tmp_dir = tmp_dir
-    create_tmp_dir
+    create_tmp_dir(keep_tmp_dir)
   end
 
-  def create_tmp_dir
+  def create_tmp_dir(keep_tmp_dir)
     @tmp_dir = Dir.mktmpdir if @tmp_dir.nil?
     at_exit do
-      delete_dir unless @keep_tmp_dir
+      delete_dir unless keep_tmp_dir
     end
     return @tmp_dir
   end
